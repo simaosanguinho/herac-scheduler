@@ -14,7 +14,11 @@ LAMBDA_MANAGER_HOME=$ARGO_HOME/lambda-manager
 function wait_port {
     host=$1
     port=$2
-    while ! nc -z $host $port; do sleep 0.01; done
+    if [[ -z "$host" || -z "$port" ]]; then
+        echo "wait_port requires both host and port. Got host='$host' port='$port'"
+        return 1
+    fi
+    while ! nc -z "$host" "$port"; do sleep 0.01; done
 }
 
 # Assumes that $LOCAL_EXECUTION, $SSH_KEY, $REMOTE_USER, and $REMOTE_HOST are set in the caller.

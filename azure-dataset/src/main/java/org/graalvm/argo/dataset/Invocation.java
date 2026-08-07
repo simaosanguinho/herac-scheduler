@@ -51,7 +51,7 @@ public class Invocation {
 
     @Override
     public String toString() {
-        return String.join(InvocationTraceFormat.DELIMITER, owner, function, String.valueOf(memory), String.valueOf(duration), String.valueOf(timestamp));
+        return String.format("%s,%s,%d,%d,%d", owner, function, memory, duration, timestamp);
     }
 
     public static Comparator<Invocation> comparator() {
@@ -65,6 +65,6 @@ public class Invocation {
     }
 
     public String toString(int firstTimestamp) {
-        return String.join(InvocationTraceFormat.DELIMITER, owner, function, String.valueOf(memory), String.valueOf(duration), String.valueOf(timestamp - firstTimestamp));
+        return String.format("%s,%s,%d,%d,%d", owner, function, memory, duration, (timestamp - firstTimestamp));
     }
 }

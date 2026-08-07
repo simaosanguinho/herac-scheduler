@@ -7,7 +7,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.graalvm.argo.dataset.Invocation;
-import org.graalvm.argo.dataset.InvocationTraceFormat;
+import org.graalvm.argo.dataset.generator.InvocationTraceGenerator;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -70,7 +70,7 @@ public class LanguageRandomizer {
 
     private static void writeInvocationsToFile(List<Invocation> invocations, Map<String, FunctionRecord> languagesFunction, String outputFilePath) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFilePath, false))) {
-            writer.write(InvocationTraceFormat.HEADER + InvocationTraceFormat.DELIMITER + "Language" + InvocationTraceFormat.DELIMITER + "Benchmark");
+            writer.write("HashOwner,HashFunction,AverageAllocatedMb,AverageDuration,Timestamp,Language,Benchmark");
             writer.newLine();
             for (Invocation invocation : invocations) {
                 writer.write(String.format("%s,%s", invocation.toString(), languagesFunction.get(invocation.getFunction()).toString()));
@@ -138,7 +138,7 @@ public class LanguageRandomizer {
             String[] splitRow;
             br.readLine(); // To skip the header
             while ((line = br.readLine()) != null) {
-                splitRow = line.split(InvocationTraceFormat.DELIMITER);
+                splitRow = line.split(InvocationTraceGenerator.DELIMITER);
                 String owner = splitRow[0];
                 String function = splitRow[1];
                 int allocatedMemoryMb = Integer.parseInt(splitRow[2]);

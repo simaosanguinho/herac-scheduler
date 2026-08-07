@@ -1,6 +1,6 @@
 package org.graalvm.argo.dataset.execution.mw;
 
-import org.graalvm.argo.dataset.InvocationTraceFormat;
+import org.graalvm.argo.dataset.generator.InvocationTraceGenerator;
 import org.graalvm.argo.dataset.execution.Environment;
 import org.graalvm.argo.dataset.execution.ExecutorConfiguration;
 import org.graalvm.argo.dataset.execution.InvocationTraceExecutor;
@@ -96,7 +96,7 @@ public class MultiWorkerInvocationTraceExecutor extends InvocationTraceExecutor 
             int lastCheckedTimestamp = 0;
             while ((line = br.readLine()) != null) {
                 beforeTmp = System.nanoTime();
-                splitRow = line.split(InvocationTraceFormat.DELIMITER);
+                splitRow = line.split(InvocationTraceGenerator.DELIMITER);
                 String owner = getOwnerName(splitRow[0]);
                 int timestamp = Integer.parseInt(splitRow[4]);
                 String benchmarkName = splitRow[6];

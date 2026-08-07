@@ -1,15 +1,5 @@
 package org.graalvm.argo.dataset.generator;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.graalvm.argo.dataset.Invocation;
-import org.graalvm.argo.dataset.InvocationTraceFormat;
-import org.graalvm.argo.dataset.utils.ExternalTraceSorter;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -25,69 +15,38 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.function.Predicate;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.graalvm.argo.dataset.Invocation;
+
+import org.graalvm.argo.dataset.utils.ExternalTraceSorter;
 
 /**
  * This class generates an invocation trace from the azure dataset. Given a set
  * of options, it will generate a file with one invocation per line.
  */
-public class AzureInvocationTraceGenerator {
+public class InvocationTraceGenerator {
 
-    private static final String SOURCE_DELIMITER = ",";
+    public static final String DELIMITER = ",";
     private static final String UNSORTED_FILE_SUFFIX = ".raw_unsorted_trace.csv";
     private static final String SORTED_FILE_SUFFIX = ".sorted_trace.csv";
     private static final String TEMP_BUFFER_SUFFIX = ".temp_buffer.csv";
     private static final String TEMP_WORK_SUFFIX = ".temp_work.csv";
     private static final int MINUTES_COLUMN_OFFSET = 3;
+    private static final Map<String, Owner> owners = new HashMap<>(2048);
+    private static final Map<String, Integer> compressedOwnerMapping = new HashMap<>(2048);
+    private static boolean compress = false;
+    private static int skipped = 0;
+    private static String inputFilePath;
 
-    private final Map<String, Owner> owners = new HashMap<>(2048);
-    private final Map<String, Integer> compressedOwnerMapping = new HashMap<>(2048);
-    private boolean compress = false;
-    private int skipped = 0;
-    private String inputFilePath;
-
-    public static void main(String[] args) throws Exception {
-        new AzureInvocationTraceGenerator().run(args);
-    }
-
-    private void run(String[] args) throws Exception {
-        Options options = prepareOptions();
-        try {
-            CommandLine cmd = new DefaultParser().parse(options, args);
-            String day = cmd.getOptionValue("day");
-            String outputFilePath = cmd.getOptionValue("trace");
-            int firstMinute = Integer.parseInt(cmd.getOptionValue("bmin", "701"));
-            int lastMinute = Integer.parseInt(cmd.getOptionValue("emin", "710"));
-            int maxMemory = Integer.parseInt(cmd.getOptionValue("mem", "0"));
-            int maxUsers = Integer.parseInt(cmd.getOptionValue("users", "0"));
-            int maxConcInv = Integer.parseInt(cmd.getOptionValue("cinv", "0"));
-            int maxFunctions = Integer.parseInt(cmd.getOptionValue("functions", "0"));
-            compress = cmd.hasOption("compress");
-
-            FunctionInfoStorage.fillFunctionData(day);
-            processDay(day, firstMinute, lastMinute);
-
-            String currentInput = inputFilePath + SORTED_FILE_SUFFIX;
-
-            currentInput = runDownscaleStep(currentInput, getNextOutput(currentInput), maxFunctions, "functions", (in, out, limit) -> downscaleByFunctions(in, out, limit));
-            currentInput = runDownscaleStep(currentInput, getNextOutput(currentInput), maxConcInv, "concurrent invocations", (in, out, limit) -> downscaleByConcurrentInvocations(in, out, limit));
-            currentInput = runDownscaleStep(currentInput, getNextOutput(currentInput), maxUsers, "users", (in, out, limit) -> downscaleByUser(in, out, limit));
-            currentInput = runDownscaleStep(currentInput, getNextOutput(currentInput), maxMemory, "MB of memory", (in, out, limit) -> downscaleByMemory(in, out, limit));
-
-            writeInvocationsToFile(currentInput, outputFilePath);
-
-            /* Clear temporary files */
-            new File(inputFilePath + SORTED_FILE_SUFFIX).delete();
-            new File(inputFilePath + TEMP_WORK_SUFFIX).delete();
-            new File(inputFilePath + TEMP_BUFFER_SUFFIX).delete();
-        } catch (ParseException e) {
-            System.out.println(e.getMessage());
-            new HelpFormatter().printHelp("utility-name", options);
-        }
-    }
-
-    private Options prepareOptions() {
+    private static Options prepareOptions() {
         Options options = new Options();
         Option input = new Option("d", "day", true, "Input dataset day (eg., d03).");
         input.setRequired(true);
@@ -119,31 +78,71 @@ public class AzureInvocationTraceGenerator {
         return options;
     }
 
-    private void writeInvocationsToFile(String inputFilePath, String outputFilePath) throws Exception {
+    public static void main(String[] args) throws Exception {
+        Options options = prepareOptions();
+        try {
+            CommandLine cmd = new DefaultParser().parse(options, args);
+            String day = cmd.getOptionValue("day");
+            String outputFilePath = cmd.getOptionValue("trace");
+            int firstMinute = Integer.parseInt(cmd.getOptionValue("bmin", "701"));
+            int lastMinute = Integer.parseInt(cmd.getOptionValue("emin", "710"));
+            int maxMemory = Integer.parseInt(cmd.getOptionValue("mem", "0"));
+            int maxUsers = Integer.parseInt(cmd.getOptionValue("users", "0"));
+            int maxConcInv = Integer.parseInt(cmd.getOptionValue("cinv", "0"));
+            int maxFunctions = Integer.parseInt(cmd.getOptionValue("functions", "0"));
+            compress = cmd.hasOption("compress");
+
+            FunctionInfoStorage.fillFunctionData(day);
+            processDay(day, firstMinute, lastMinute);
+
+            String currentInput = inputFilePath + SORTED_FILE_SUFFIX;
+
+            currentInput = runDownscaleStep(currentInput, getNextOutput(currentInput), maxFunctions, "functions", (in, out, limit) -> downscaleByFunctions(in, out, maxFunctions));
+            currentInput = runDownscaleStep(currentInput, getNextOutput(currentInput), maxConcInv, "concurrent invocations", (in, out, limit) -> downscaleByConcurrentInvocations(in, out, maxConcInv));
+            currentInput = runDownscaleStep(currentInput, getNextOutput(currentInput), maxUsers, "users", (in, out, limit) -> downscaleByUser(in, out, maxUsers));
+            currentInput = runDownscaleStep(currentInput, getNextOutput(currentInput), maxMemory, "MB of memory", (in, out, limit) -> downscaleByMemory(in, out, maxMemory));
+
+            writeInvocationsToFile(currentInput, outputFilePath);
+
+            /* Clear temporary files */
+            new File(inputFilePath + SORTED_FILE_SUFFIX).delete();
+            new File(inputFilePath + TEMP_WORK_SUFFIX).delete();
+            new File(inputFilePath + TEMP_BUFFER_SUFFIX).delete();
+        } catch (ParseException e) {
+            System.out.println(e.getMessage());
+            new HelpFormatter().printHelp("utility-name", options);
+            return;
+        }
+    }
+
+    private static void writeInvocationsToFile(String inputFilePath, String outputFilePath) throws Exception {
         int firstTimestamp = 0;
         try (BufferedReader reader = new BufferedReader(new FileReader(inputFilePath))) {
             String firstLine = reader.readLine();
             if (firstLine != null) {
-                String[] splitRow = firstLine.split(InvocationTraceFormat.DELIMITER);
+                String[] splitRow = firstLine.split(DELIMITER);
                 firstTimestamp = Integer.parseInt(splitRow[4]);
             }
         }
 
         /* Stream from the final temp file to the final output file */
         try (BufferedReader reader = new BufferedReader(new FileReader(inputFilePath));
-             BufferedWriter writer = new BufferedWriter(new FileWriter(outputFilePath, false))) {
-            writer.write(InvocationTraceFormat.HEADER);
+            BufferedWriter writer = new BufferedWriter(new FileWriter(outputFilePath, false))) {
+            
+            writer.write("HashOwner,HashFunction,AverageAllocatedMb,AverageDuration,Timestamp");
             writer.newLine();
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(InvocationTraceFormat.DELIMITER);
+                String[] parts = line.split(DELIMITER);
                 String owner = parts[0];
                 String function = parts[1];
                 String memory = parts[2];
                 String duration = parts[3];
                 int timestamp = Integer.parseInt(parts[4]);
+                
+                int normalizedTimestamp = timestamp - firstTimestamp;
 
-                writer.write(String.join(InvocationTraceFormat.DELIMITER, owner, function, memory, duration, String.valueOf(timestamp - firstTimestamp)));
+                writer.write(String.format("%s,%s,%s,%s,%d", owner, function, memory, duration, normalizedTimestamp));
                 writer.newLine();
             }
         }
@@ -154,7 +153,7 @@ public class AzureInvocationTraceGenerator {
         }
     }
 
-    private void writeMapping(String path, String outputMapping, String header, Map<String, ?> mapping) throws IOException {
+    private static void writeMapping(String path, String outputMapping, String header, Map<String, ?> mapping) throws IOException {
         Path inputPath = Paths.get(path);
         Path parentDir = inputPath.getParent();
         File targetFile = (parentDir != null) ? parentDir.resolve(outputMapping).toFile() : new File(outputMapping);
@@ -163,14 +162,14 @@ public class AzureInvocationTraceGenerator {
             writer.write(header);
             writer.newLine();
             for (Map.Entry<String, ?> entry : mapping.entrySet()) {
-                writer.write(entry.getKey() + InvocationTraceFormat.DELIMITER + entry.getValue());
+                writer.write(entry.getKey() + "," + entry.getValue());
                 writer.newLine();
             }
         }
     }
 
-    private void processFunction(String line, int firstMinute, int lastMinute, BufferedWriter writer) {
-        String[] splitRow = line.split(SOURCE_DELIMITER);
+    private static void processFunction(String line, int firstMinute, int lastMinute, BufferedWriter bw) {
+        String[] splitRow = line.split(DELIMITER);
         String owner = splitRow[0];
         String app = splitRow[1];
         String function = splitRow[2];
@@ -202,13 +201,15 @@ public class AzureInvocationTraceGenerator {
                 int minEndMs = minBeginningMs + 60000;
                 for (int i = 0; i < invocationsForMinute; ++i) {
                     int timestamp = ThreadLocalRandom.current().nextInt(minBeginningMs, minEndMs);
-                    writer.write(String.join(InvocationTraceFormat.DELIMITER,
-                            owner,
-                            function,
-                            String.valueOf(memory),
-                            String.valueOf(duration),
-                            String.valueOf(timestamp)));
-                    writer.newLine();
+                    String csvLine = String.join(",", 
+                        owner, 
+                        function, 
+                        String.valueOf(memory), 
+                        String.valueOf(duration), 
+                        String.valueOf(timestamp)
+                    );
+                    bw.write(csvLine);
+                    bw.newLine();
                 }
                 ++currentMinute;
             }
@@ -219,7 +220,9 @@ public class AzureInvocationTraceGenerator {
         }
 
         if (invocationCount > 0) {
-            owners.computeIfAbsent(owner, Owner::new);
+            if (!owners.containsKey(owner)) {
+                owners.put(owner, new Owner(owner));
+            }
             Owner currentOwner = owners.get(owner);
             currentOwner.addFunction(function);
             currentOwner.addInvocations(invocationCount);
@@ -230,20 +233,24 @@ public class AzureInvocationTraceGenerator {
      * Read data from the CSV file, generate timestamps for the desired time frame.
      * File expected syntax: HashOwner, HashApp, HashFunction, Trigger, 1, 2, 3...
      */
-    private void processDay(String datasetId, int firstMinute, int lastMinute) {
-        inputFilePath = "input/invocations_per_function_md.anon." + datasetId + ".csv";
-        try (BufferedReader reader = new BufferedReader(new FileReader(inputFilePath));
-             BufferedWriter writer = new BufferedWriter(new FileWriter(inputFilePath + UNSORTED_FILE_SUFFIX, false))) {
+    private static void processDay(String datasetId, int firstMinute, int lastMinute) {
+        try {
+            inputFilePath = "input/invocations_per_function_md.anon." + datasetId + ".csv";
+            File file = new File(inputFilePath);
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            BufferedWriter bw = new BufferedWriter(new FileWriter(inputFilePath + UNSORTED_FILE_SUFFIX, false));
             String line;
-            reader.readLine(); // To skip the header
-            int functionCounter = 1;
+            br.readLine(); // To skip the header
+            int fcounter = 1;
 
-            while ((line = reader.readLine()) != null) {
-                processFunction(line, firstMinute, lastMinute, writer);
-                System.out.println("Processed function " + functionCounter++);
+            while ((line = br.readLine()) != null) {
+                processFunction(line, firstMinute, lastMinute, bw);
+                System.out.println("Processed function " + fcounter++);
             }
             System.out.println("Skipped " + skipped + " functions due to lack of information.");
-        } catch (IOException ioe) {
+            bw.close();
+            br.close();
+        } catch(IOException ioe) {
             ioe.printStackTrace();
             new File(inputFilePath + UNSORTED_FILE_SUFFIX).delete();
             System.exit(1);
@@ -270,29 +277,27 @@ public class AzureInvocationTraceGenerator {
         void perform(String input, String output, int limit) throws IOException;
     }
 
-    private String getNextOutput(String currentInput) {
+    private static String getNextOutput(String currentInput) {
         return currentInput.contains("buffer") ? inputFilePath + TEMP_WORK_SUFFIX : inputFilePath + TEMP_BUFFER_SUFFIX;
     }
 
-    private String runDownscaleStep(String input, String output, int limit, String label, Downscaler action) throws IOException {
-        if (limit <= 0) {
-            return input;
-        }
+    private static String runDownscaleStep(String input, String output, int limit, String label, Downscaler action) throws IOException {
+        if (limit <= 0) return input;
 
         action.perform(input, output, limit);
         System.err.println("Finished downscaling to " + limit + " " + label + ".");
-
+        
         // Swap files
         return output;
     }
 
     /* Filters the input file line by line, keeping only the rows that satisfy the provided predicate */
-    private void processFile(String inputPath, String outputPath, Predicate<String[]> rowFilter) throws IOException {
+    private static void processFile(String inputPath, String outputPath, Predicate<String[]> rowFilter) throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(inputPath));
-             BufferedWriter writer = new BufferedWriter(new FileWriter(outputPath))) {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(outputPath))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] splitRow = line.split(InvocationTraceFormat.DELIMITER);
+                String[] splitRow = line.split(DELIMITER);
                 if (rowFilter.test(splitRow)) {
                     writer.write(line);
                     writer.newLine();
@@ -302,9 +307,9 @@ public class AzureInvocationTraceGenerator {
     }
 
     /* Remove invocations that go over the maximum number of concurrent invocations. */
-    private void downscaleByConcurrentInvocations(String inputPath, String outputPath, int maxConcInv) throws IOException {
+    private static void downscaleByConcurrentInvocations(String inputPath, String outputPath, int maxConcInv) throws IOException {
         List<Integer> activeInvocationsEndTimes = new LinkedList<>();
-
+        
         processFile(inputPath, outputPath, splitRow -> {
             int duration = Integer.parseInt(splitRow[3]);
             int timestamp = Integer.parseInt(splitRow[4]);
@@ -322,7 +327,7 @@ public class AzureInvocationTraceGenerator {
     }
 
     /* Remove invocations that are not from the N more popular users. */
-    private void downscaleByUser(String inputPath, String outputPath, int maxUsers) throws IOException {
+    private static void downscaleByUser(String inputPath, String outputPath, int maxUsers) throws IOException {
         Set<String> selectedOwners = owners.values().stream()
                 .sorted(Comparator.comparingInt(Owner::getFunctions).reversed())
                 .limit(maxUsers).map(Owner::getOwnerHash).collect(Collectors.toSet());
@@ -331,13 +336,13 @@ public class AzureInvocationTraceGenerator {
     }
 
     /* Remove invocations that are not from the N first functions that appear in the trace. */
-    private void downscaleByFunctions(String inputPath, String outputPath, int maxFunctions) throws IOException {
+    private static void downscaleByFunctions(String inputPath, String outputPath, int maxFunctions) throws IOException {
         /* Count function frequencies */
         Map<String, Long> invocationsFunction = new HashMap<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(inputPath))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] splitRow = line.split(InvocationTraceFormat.DELIMITER);
+                String[] splitRow = line.split(DELIMITER);
                 String functionId = splitRow[1];
                 invocationsFunction.merge(functionId, 1L, Long::sum);
             }
@@ -358,7 +363,7 @@ public class AzureInvocationTraceGenerator {
     }
 
     /* Remove invocations that go over the maximum memory. */
-    private void downscaleByMemory(String inputPath, String outputPath, int maxMemory) throws IOException {
+    private static void downscaleByMemory(String inputPath, String outputPath, int maxMemory) throws IOException {
         List<Invocation> activeInvocations = new LinkedList<>();
 
         processFile(inputPath, outputPath, splitRow -> {
@@ -366,7 +371,9 @@ public class AzureInvocationTraceGenerator {
             int duration = Integer.parseInt(splitRow[3]);
             int timestamp = Integer.parseInt(splitRow[4]);
 
-            activeInvocations.removeIf(f -> timestamp >= f.getEndTimestamp());
+            int currentInvocationTimestamp = timestamp;
+
+            activeInvocations.removeIf(f -> currentInvocationTimestamp >= f.getEndTimestamp());
             int currentConsumption = activeInvocations.stream().mapToInt(Invocation::getMemory).sum();
 
             if (currentConsumption + memory <= maxMemory) {

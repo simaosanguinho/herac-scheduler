@@ -3,6 +3,7 @@ package org.graalvm.argo.dataset.execution.utils;
 public enum FunctionRuntime {
 
     HYDRA("hydra"),
+    HERAC("herac"),
     GRAALOS("graalos"),
     OPENWHISK("openwhisk"),
     KNATIVE("knative");

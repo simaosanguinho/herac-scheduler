@@ -2,7 +2,7 @@ package org.graalvm.argo.dataset.execution;
 
 import org.graalvm.argo.dataset.execution.utils.Benchmark;
 import org.graalvm.argo.dataset.execution.utils.FunctionRuntime;
-import org.graalvm.argo.dataset.InvocationTraceFormat;
+import org.graalvm.argo.dataset.generator.InvocationTraceGenerator;
 import org.graalvm.argo.dataset.multilang.FunctionLanguage;
 import org.graalvm.argo.dataset.utils.network.SocketNetworkUtils;
 
@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 public class InvocationTraceExecutor {
+
+    private static final int EXECUTOR_TRACE_COLUMN_COUNT = 7;
 
     public final ExecutorConfiguration config;
 
@@ -34,7 +36,8 @@ public class InvocationTraceExecutor {
             /* Used to avoid waiting on the same period multiple times. */
             int lastCheckedTimestamp = 0;
             while ((line = br.readLine()) != null) {
-                splitRow = line.split(InvocationTraceFormat.DELIMITER);
+                splitRow = line.split(InvocationTraceGenerator.DELIMITER);
+                validateTraceRow(splitRow, line);
                 String owner = getOwnerName(splitRow[0]);
                 int timestamp = Integer.parseInt(splitRow[4]);
                 String benchmarkName = splitRow[6];
@@ -64,7 +67,8 @@ public class InvocationTraceExecutor {
             String[] splitRow;
             br.readLine(); // To skip the header
             while ((line = br.readLine()) != null) {
-                splitRow = line.split(InvocationTraceFormat.DELIMITER);
+                splitRow = line.split(InvocationTraceGenerator.DELIMITER);
+                validateTraceRow(splitRow, line);
                 String owner = getOwnerName(splitRow[0]);
                 String benchmarkName = splitRow[6];
                 String function = getFunctionName(splitRow[1], benchmarkName);
@@ -104,11 +108,21 @@ public class InvocationTraceExecutor {
     }
 
     protected String getFunctionName(String functionFromTrace, String benchmarkName) {
-        if ("hy".equals(config.executionMode) || "hy-fc".equals(config.executionMode)) {
+        if ("hy".equals(config.executionMode) || "hy-fc".equals(config.executionMode) || "he".equals(config.executionMode)) {
             // To avoid clashing SVM IDs when collocating different functions.
             return benchmarkName;
         }
         return functionFromTrace;
+    }
+
+    protected void validateTraceRow(String[] splitRow, String line) {
+        if (splitRow.length < EXECUTOR_TRACE_COLUMN_COUNT) {
+            throw new IllegalArgumentException(
+                    "Invalid trace format: expected 7 columns "
+                            + "(HashOwner,HashFunction,AverageAllocatedMb,AverageDuration,Timestamp,Language,Benchmark) "
+                            + "but found " + splitRow.length + ". "
+                            + "Run trace-languages.sh on the generated trace before executing it. Offending row: " + line);
+        }
     }
 
     public void uploadFunction(String address, String owner, String function, String benchmarkName) {

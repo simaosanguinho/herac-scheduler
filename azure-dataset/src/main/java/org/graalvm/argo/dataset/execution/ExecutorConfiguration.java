@@ -48,6 +48,8 @@ public class ExecutorConfiguration {
     private FunctionRuntime getFunctionRuntime(String executionMode) {
         if ("hy".equals(executionMode) || "hy-sf".equals(executionMode) || "hy-si".equals(executionMode) || "hy-fc".equals(executionMode)) {
             return FunctionRuntime.HYDRA;
+        } else if ("he".equals(executionMode)) {
+            return FunctionRuntime.HERAC;
         } else if ("ow".equals(executionMode)) {
             return FunctionRuntime.OPENWHISK;
         } else if ("gos".equals(executionMode) || "gos-native".equals(executionMode)) {
@@ -59,7 +61,7 @@ public class ExecutorConfiguration {
     }
 
     private String getInvocationCollocation(String executionMode) {
-        if ("hy".equals(executionMode) || "hy-sf".equals(executionMode) || "hy-fc".equals(executionMode) || "kn".equals(executionMode)) {
+        if ("hy".equals(executionMode) || "hy-sf".equals(executionMode) || "hy-fc".equals(executionMode) || "kn".equals(executionMode) || "he".equals(executionMode)) {
             return "true";
         }
         return "false";
@@ -76,6 +78,8 @@ public class ExecutorConfiguration {
         switch (functionRuntime) {
             case HYDRA:
                 return "hy-benchmarks.json";
+            case HERAC:
+                return "he-benchmarks.json";
             case OPENWHISK:
                 return "ow-benchmarks.json";
             case GRAALOS:

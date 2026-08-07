@@ -1,18 +1,16 @@
 package org.graalvm.argo.dataset;
 
+import org.graalvm.argo.dataset.generator.InvocationTraceGenerator;
+
 import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Iterator;
-import java.util.List;
 import java.util.LinkedList;
-import java.util.Set;
-import java.util.HashSet;
+import java.util.List;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 /**
  * This class loads an invocation trace and replays each invocation, one at a
@@ -25,85 +23,64 @@ public class InvocationTraceSimulator {
         return new Invocation(owner, function, memory, duration, timestamp);
     }
 
-    protected void evictTimedOutInvocations(SimulationState ss, int timestamp, int keepalive) {
-        Iterator<Invocation> it = ss.activeInvocations.iterator();
-        while (it.hasNext()) {
-            Invocation inv = it.next();
-            if (timestamp >= inv.getEndTimestamp() + keepalive) {
-                it.remove();
-                TreeSet<Invocation> bucket = ss.invocationsByFunction.get(inv.getFunction());
-                if (bucket != null) {
-                    bucket.remove(inv);
-                    if (bucket.isEmpty()) {
-                        ss.invocationsByFunction.remove(inv.getFunction());
-                    }
-                }
+    protected List<Invocation> loadInvocations(String invocationsFile) {
+        List<Invocation> invocations = new LinkedList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(invocationsFile))) {
+            String line;
+            String[] splitRow;
+            br.readLine(); // To skip the header
+            while ((line = br.readLine()) != null) {
+                splitRow = line.split(InvocationTraceGenerator.DELIMITER);
+                invocations.add(createInvocation(splitRow[0], splitRow[1], Integer.valueOf(splitRow[2]), Integer.valueOf(splitRow[3]), Integer.valueOf(splitRow[4])));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return invocations;
+    }
+
+    protected void evictTimedOutInvocations(TreeSet<? extends Invocation> activeInvocations, int timestamp, int keepalive) {
+        List<Invocation> evict = new LinkedList<>();
+        for (Invocation invocation : activeInvocations) {
+            if (timestamp >= invocation.getEndTimestamp() + keepalive) {
+                evict.add(invocation);
             } else {
                 // The activeInvocations tree is ordered. If we fail the above check, later elements will also fail.
                 break;
             }
         }
+        activeInvocations.removeAll(evict);
     }
 
-    protected Invocation findWarmInvocation(SimulationState ss, int timestamp, String function) {
-        TreeSet<Invocation> bucket = ss.invocationsByFunction.get(function);
-        if (bucket == null || bucket.isEmpty()) {
-            return null;
+    // TODO - for these, I don't see a clear reason not to doit in a stream.
+    protected Invocation findWarmInvocation(TreeSet<? extends Invocation> activeInvocations, int timestamp, String function) {
+        for (Invocation invocation : activeInvocations) {
+            if (timestamp < invocation.getEndTimestamp()) {
+                continue;
+            } else if (invocation.getFunction().equals(function)) {
+                return invocation;
+            }
         }
-
-        Invocation candidate = bucket.first(); // smallest endTimestamp for function
-        if (candidate.getEndTimestamp() <= timestamp) {
-            return candidate;
-        } else {
-            return null;
-        }
+        return null;
     }
 
-    protected OutputEntry updateStatistics(TreeSet<Invocation> activeInvocations, SimulationState ss) {
-        return updateStatistics(activeInvocations, new OutputEntry(), ss);
+    protected OutputEntry updateStatistics(TreeSet<Invocation> activeInvocations, List<Invocation> runningInvocations, SimulationState ss) {
+        return updateStatistics(activeInvocations, runningInvocations, new OutputEntry(), ss);
     }
 
-    protected OutputEntry updateStatistics(TreeSet<Invocation> activeInvocations, OutputEntry outputEntry, SimulationState ss) {
+    protected OutputEntry updateStatistics(TreeSet<Invocation> activeInvocations, List<Invocation> runningInvocations, OutputEntry outputEntry, SimulationState ss) {
         outputEntry.timestamp = ss.currentTimestamp;
         outputEntry.invocationsProcessed = ss.invocationsProcessed - ss.lastInvocationsProcessed;
         outputEntry.coldStarts = ss.coldStarts;
-
-        Set<String> runningUsers = new HashSet<>();
-        Set<String> runningFunctions = new HashSet<>();
-        Set<String> totalUsers = new HashSet<>();
-        Set<String> totalFunctions = new HashSet<>();
-
-        int runningMemSum = 0;
-        int cachedMemSum = 0;
-        int runningInvocationsCount = 0;
-        
-        for (Invocation invocation : activeInvocations) {
-            String owner = invocation.getOwner();
-            String function = invocation.getFunction();
-            int memory = invocation.getMemory();
-
-            totalUsers.add(owner);
-            totalFunctions.add(function);
-
-            if (invocation.getEndTimestamp() > ss.currentTimestamp) {
-                runningInvocationsCount++;
-                runningMemSum += memory;
-                runningUsers.add(owner);
-                runningFunctions.add(function);
-            } else {
-                cachedMemSum += memory;
-            }
-        }
-
-        outputEntry.runningInvocations = runningInvocationsCount;
-        outputEntry.runningUsers = runningUsers.size();
-        outputEntry.runningFunctions = runningFunctions.size();
-        outputEntry.runningInvocationsFootprint = runningMemSum;
-
-        outputEntry.cachedUsers = totalUsers.size() - outputEntry.runningUsers;
-        outputEntry.cachedFunctions = totalFunctions.size() - outputEntry.runningFunctions;
-        outputEntry.cachedInvocationsFootprint = cachedMemSum;
-
+        outputEntry.runningUsers = (int) runningInvocations.parallelStream().map(Invocation::getOwner).distinct().count();
+        outputEntry.runningFunctions  = (int) runningInvocations.parallelStream().map(Invocation::getFunction).distinct().count();
+        outputEntry.runningInvocations = runningInvocations.size();
+        outputEntry.runningInvocationsFootprint = (int) runningInvocations.parallelStream().mapToInt(Invocation::getMemory).sum();
+        int totalUsers = (int) activeInvocations.parallelStream().map(Invocation::getOwner).distinct().count();
+        int totalFunctions = (int) activeInvocations.parallelStream().map(Invocation::getFunction).distinct().count();
+        outputEntry.cachedUsers = totalUsers - outputEntry.runningUsers;
+        outputEntry.cachedFunctions = totalFunctions - outputEntry.runningFunctions;
+        outputEntry.cachedInvocationsFootprint = activeInvocations.parallelStream().filter(i -> i.getEndTimestamp() < ss.currentTimestamp).mapToInt(Invocation::getMemory).sum();
         return outputEntry;
     }
 
@@ -117,7 +94,7 @@ public class InvocationTraceSimulator {
         if (warm == null) {
             ss.coldStarts++;
         } else {
-            ss.removeInvocation(warm);
+            ss.activeInvocations.remove(warm);
         }
     }
 
@@ -128,27 +105,20 @@ public class InvocationTraceSimulator {
     protected List<OutputEntry> simulateInvocations(String inputFile, SimulationState ss, int keepalive, int interval) {
         List<OutputEntry> statistics = new LinkedList<>();
 
-        try (FileInputStream fis = new FileInputStream(inputFile);
-             FileChannel channel = fis.getChannel();
-             BufferedReader br = new BufferedReader(new InputStreamReader(fis))) {
-            
-            long fileSize = Files.size(Paths.get(inputFile));
-            int lastPrintedPercent = 0;
-
+        try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
+            long totalLines = Files.lines(Paths.get(inputFile)).count() - 1;
             String line;
             br.readLine(); // Skip header
             
             while ((line = br.readLine()) != null) {
-                String[] splitRow = line.split(InvocationTraceFormat.DELIMITER);
+                String[] splitRow = line.split(InvocationTraceGenerator.DELIMITER);
                 
                 Invocation currentInvocation = createInvocation(splitRow[0], splitRow[1], Integer.valueOf(splitRow[2]), Integer.valueOf(splitRow[3]), Integer.valueOf(splitRow[4]));
 
                 processInvocation(statistics, currentInvocation, ss, keepalive, interval);
 
-                int progress = (int) (channel.position() * 100 / fileSize);
-                if (progress > lastPrintedPercent) {
-                    lastPrintedPercent = progress;
-                    System.err.println(String.format("Processed %d (%.2f %%)", ss.invocationsProcessed, (float) progress));
+                if (ss.invocationsProcessed % Math.max(totalLines / 100, 1) == 0) {
+                    System.err.println(String.format("Processed %d (%.2f %%)", ss.invocationsProcessed, ((float) ss.invocationsProcessed / totalLines * 100)));
                 }
             }
         } catch (IOException e) {
@@ -156,7 +126,7 @@ public class InvocationTraceSimulator {
         }
 
         // Final update to statistics.
-        statistics.add(updateStatistics(ss.activeInvocations, ss));
+        statistics.add(updateStatistics(ss.activeInvocations, ss.runningInvocations(), ss));
 
         return statistics;
     }
@@ -169,19 +139,20 @@ public class InvocationTraceSimulator {
         ss.currentTimestamp = currentInvocation.getTimestamp();
 
         // Remove invocations that have past their keep alive time.
-        evictTimedOutInvocations(ss, ss.currentTimestamp, keepalive);
+        evictTimedOutInvocations(ss.activeInvocations, ss.currentTimestamp, keepalive);
 
         // We try to find an inactive invocation that can be replaced with the new one.
-        Invocation warm = findWarmInvocation(ss, ss.currentTimestamp, currentInvocation.getFunction());
+        Invocation warm = findWarmInvocation(ss.activeInvocations, ss.currentTimestamp, currentInvocation.getFunction());
         updateAfterWarmCheck(ss, currentInvocation, warm);
 
         // Add invocation to array of active invocations.
-        ss.addInvocation(currentInvocation);
+        ss.activeInvocations.add(currentInvocation);
         ss.invocationsProcessed++;
 
         if (ss.currentTimestamp - ss.previousTimestamp > interval) {
             // Calculate and update statistics.
-            statistics.add(updateStatistics(ss.activeInvocations, ss));
+            List<Invocation> runningInvocations = ss.activeInvocations.parallelStream().filter(i -> i.getEndTimestamp() > ss.currentTimestamp).collect(Collectors.toList());
+            statistics.add(updateStatistics(ss.activeInvocations, runningInvocations, ss));
 
             // Reset values until the next round.
             resetSimulationStateAfterUpdateStatistics(ss);

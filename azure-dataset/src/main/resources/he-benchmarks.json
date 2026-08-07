@@ -1,0 +1,175 @@
+{
+  "jvhw" : {
+    "language" : "java",
+    "benchmarkName" : "jvhw",
+    "code" : "{{ARGO_HOME}}/benchmarks/data/apps/hello_world_guest.aot",
+    "entryPoint" : "run",
+    "payload" : "{\"name\":\"rbruno\"}",
+    "memory"  : 256,
+    "duration" : 5
+  },
+  "jvfh" : {
+    "language" : "java",
+    "benchmarkName" : "jvfh",
+    "code" : "{{ARGO_HOME}}/benchmarks/data/apps/hashing_guest.aot",
+    "entryPoint" : "run",
+    "payload" : "{\"url\":\"http://172.18.0.1:8000/snap.png\"}",
+    "memory"  : 256,
+    "duration" : 8
+  },
+  "jvcl" : {
+    "language" : "java",
+    "benchmarkName" : "jvcl",
+    "code" : "{{ARGO_HOME}}/benchmarks/data/apps/classify_guest.aot",
+    "entryPoint" : "run",
+    "payload" : "{\"model_url\":\"http://172.18.0.1:8000/tensorflow_inception_graph.pb\",\"labels_url\":\"http://172.18.0.1:8000/imagenet_comp_graph_label_strings.txt\",\"image_url\":\"http://172.18.0.1:8000/eagle.jpg\"}",
+    "memory"  : 2048,
+    "duration" : 4430
+  },
+  "jvhr" : {
+    "language" : "java",
+    "benchmarkName" : "jvhr",
+    "code" : "{{ARGO_HOME}}/benchmarks/data/apps/hashing_guest.aot",
+    "entryPoint" : "run",
+    "payload" : "{\"url\":\"http://172.18.0.1:8000/snap.png\"}",
+    "memory"  : 256,
+    "duration" : 7
+  },
+  "jvvp" : {
+    "language" : "java",
+    "benchmarkName" : "jvvp",
+    "code" : "{{ARGO_HOME}}/benchmarks/data/apps/video_processing_guest.aot",
+    "entryPoint" : "run",
+    "payload" : "{\"video\":\"http://172.18.0.1:8000/video.mp4\",\"ffmpeg\":\"http://172.18.0.1:8000/ffmpeg\"}",
+    "memory"  : 2048,
+    "duration" : 25175
+  },
+
+  "pyhw" : {
+    "language" : "python",
+    "benchmarkName" : "pyhw",
+    "code" : "{{ARGO_HOME}}/benchmarks/data/apps/hello_world_guest.aot",
+    "entryPoint" : "run",
+    "payload" : "{\"name\":\"rbruno\"}",
+    "memory"  : 256,
+    "duration" : 5
+  },
+  "pyms" : {
+    "language" : "python",
+    "benchmarkName" : "pyms",
+    "code" : "{{ARGO_HOME}}/benchmarks/data/apps/mst_guest.aot",
+    "entryPoint" : "run",
+    "payload" : "{\"size\":\"100\"}",
+    "memory"  : 256,
+    "duration" : 12
+  },
+  "pybf" : {
+    "language" : "python",
+    "benchmarkName" : "pybf",
+    "code" : "{{ARGO_HOME}}/benchmarks/data/apps/bfs_guest.aot",
+    "entryPoint" : "run",
+    "payload" : "{\"size\":\"100\"}",
+    "memory"  : 256,
+    "duration" : 10
+  },
+  "pypr" : {
+    "language" : "python",
+    "benchmarkName" : "pypr",
+    "code" : "{{ARGO_HOME}}/benchmarks/data/apps/pagerank_guest.aot",
+    "entryPoint" : "run",
+    "payload" : "{\"size\":\"10\"}",
+    "memory"  : 256,
+    "duration" : 12
+  },
+  "pydn" : {
+    "language" : "python",
+    "benchmarkName" : "pydn",
+    "code" : "{{ARGO_HOME}}/benchmarks/data/apps/dna_guest.aot",
+    "entryPoint" : "run",
+    "payload" : "{\"fasta_url\":\"http://172.18.0.1:8000/bacillus_subtilis.fasta\"}",
+    "memory"  : 256,
+    "duration" : 27
+  },
+  "pydh" : {
+    "language" : "python",
+    "benchmarkName" : "pydh",
+    "code" : "{{ARGO_HOME}}/benchmarks/data/apps/dynamic_html_guest.aot",
+    "entryPoint" : "run",
+    "payload" : "{\"url\":\"http://172.18.0.1:8000/template.html\",\"username\":\"rbruno\",\"nsize\":\"10\"}",
+    "memory"  : 256,
+    "duration" : 14
+  },
+  "pyco" : {
+    "language" : "python",
+    "benchmarkName" : "pyco",
+    "code" : "{{ARGO_HOME}}/benchmarks/data/apps/compression_guest.aot",
+    "entryPoint" : "run",
+    "payload" : "{\"url\":\"http://172.18.0.1:8000/video.mp4\"}",
+    "memory"  : 256,
+    "duration" : 61
+  },
+  "pyth" : {
+    "language" : "python",
+    "benchmarkName" : "pyth",
+    "code" : "{{ARGO_HOME}}/benchmarks/data/apps/thumbnailer_guest.aot",
+    "entryPoint" : "run",
+    "payload" : "{\"url\":\"http://172.18.0.1:8000/snap.png\"}",
+    "memory"  : 1024,
+    "duration" : 21
+  },
+  "pyvp" : {
+    "language" : "python",
+    "benchmarkName" : "pyvp",
+    "code" : "{{ARGO_HOME}}/benchmarks/data/apps/video_processing_guest.aot",
+    "entryPoint" : "run",
+    "payload" : "{\"video\":\"http://172.18.0.1:8000/video.mp4\",\"ffmpeg\":\"http://172.18.0.1:8000/ffmpeg\"}",
+    "memory"  : 2048,
+    "duration" : 3052
+  },
+  "pyup" : {
+    "language" : "python",
+    "benchmarkName" : "pyup",
+    "code" : "{{ARGO_HOME}}/benchmarks/data/apps/uploader_guest.aot",
+    "entryPoint" : "run",
+    "payload" : "{\"url\":\"http://172.18.0.1:8000/snap.png\"}",
+    "memory"  : 256,
+    "duration" : 15
+  },
+
+  "jshw" : {
+    "language" : "javascript",
+    "benchmarkName" : "jshw",
+    "code" : "{{ARGO_HOME}}/benchmarks/data/apps/hello_world_guest.aot",
+    "entryPoint" : "run",
+    "payload" : "{\"name\":\"rbruno\"}",
+    "memory"  : 256,
+    "duration" : 5
+  },
+  "jsdh" : {
+    "language" : "javascript",
+    "benchmarkName" : "jsdh",
+    "code" : "{{ARGO_HOME}}/benchmarks/data/apps/dynamic_html_guest.aot",
+    "entryPoint" : "run",
+    "payload" : "{\"url\":\"http://172.18.0.1:8000/template.html\",\"username\":\"rbruno\",\"nsize\":\"10\"}",
+    "memory"  : 256,
+    "duration" : 6
+  },
+  "jsth" : {
+    "language" : "javascript",
+    "benchmarkName" : "jsth",
+    "code" : "{{ARGO_HOME}}/benchmarks/data/apps/thumbnailer_guest.aot",
+    "entryPoint" : "run",
+    "payload" : "{\"url\":\"http://172.18.0.1:8000/snap.png\"}",
+    "memory"  : 512,
+    "duration" : 25
+  },
+  "jsup" : {
+    "language" : "javascript",
+    "benchmarkName" : "jsup",
+    "code" : "{{ARGO_HOME}}/benchmarks/data/apps/uploader_guest.aot",
+    "entryPoint" : "run",
+    "payload" : "{\"url\":\"http://172.18.0.1:8000/snap.png\"}",
+    "memory"  : 256,
+    "duration" : 9
+  }
+}

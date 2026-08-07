@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Example usage of this script:
-# bash benchmark-lse.sh hy|hy-sf|hy-si|ow /path/to/dataset/file --single|--multi </path/to/results/folder>
+# bash benchmark-lse.sh hy|hy-sf|hy-si|ow|he /path/to/dataset/file --single|--multi </path/to/results/folder>
 # The structure of the .csv file should be as follows:
 # HashOwner HashFunction AverageAllocatedMb AverageDuration Timestamp
 #
@@ -11,6 +11,8 @@
 function DIR {
     echo "$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 }
+
+export LOCAL_EXECUTION=1
 
 # Defines some variables and functions
 source $(DIR)/shared.sh
@@ -25,21 +27,8 @@ if [[ -z "${JAVA_HOME}" ]]; then
     exit 1
 fi
 
-if [[ -n "${LOCAL_EXECUTION}" ]]; then
-    echo "Running the large scale experiment locally."
-    LAMBDA_MANAGER_ADDRESS="$LOCAL_LAMBDA_MANAGER_HOST:$LAMBDA_MANAGER_PORT"
-else
-    SSH_KEY=/home/sergiyivan/.ssh/id_rsa_inesc_cluster_sergiyivan_vitamina02
-    REMOTE_HOST=10.15.0.23
-    REMOTE_USER=sergiyivan
-    LAMBDA_MANAGER_ADDRESS="$REMOTE_HOST:$LAMBDA_MANAGER_PORT"
-
-    echo "Running the large scale experiment with a remote real worker. Configurations:"
-    echo "SSH key: $SSH_KEY"
-    echo "Worker host: $REMOTE_HOST"
-    echo "Remote host user: $REMOTE_USER"
-    echo "To run the experiment locally, please set the LOCAL_EXECUTION environment variable."
-fi
+echo "Running the large scale experiment locally."
+LAMBDA_MANAGER_ADDRESS="$LOCAL_LAMBDA_MANAGER_HOST:$LAMBDA_MANAGER_PORT"
 
 WORKER_COUNT=100
 FIRST_PORT=50010
@@ -86,6 +75,8 @@ elif [[ "$MODE" = "hy-sf" ]]; then
     LAMBDA_MANAGER_CONFIGURATION="$ARGO_HOME/run/configs/manager/hy-lm.json"
 elif [[ "$MODE" = "hy-si" ]]; then
     LAMBDA_MANAGER_CONFIGURATION="$ARGO_HOME/run/configs/manager/hy-lm.json"
+elif [[ "$MODE" = "he" ]]; then
+    LAMBDA_MANAGER_CONFIGURATION="$ARGO_HOME/run/configs/manager/he-lm.json"
 elif [[ "$MODE" = "ow" ]]; then
     LAMBDA_MANAGER_CONFIGURATION="$ARGO_HOME/run/configs/manager/ow-lm.json"
 elif [[ "$MODE" = "kn" ]]; then
