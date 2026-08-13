@@ -140,6 +140,20 @@ public class InvocationTraceExecutor {
                 message = message + " svm_id=" + benchmarkConfig.svmId;
             }
         }
+        if (FunctionRuntime.HERAC.equals(config.functionRuntime)) {
+            if (benchmarkConfig.heapSize != null) {
+                message = message + " function_heap_size=" + benchmarkConfig.heapSize;
+            }
+            if (benchmarkConfig.inputBufferSize != null) {
+                message = message + " function_input_buffer_size=" + benchmarkConfig.inputBufferSize;
+            }
+            if (benchmarkConfig.scratchSize != null) {
+                message = message + " function_scratch_size=" + benchmarkConfig.scratchSize;
+            }
+            if (benchmarkConfig.outputBufferSize != null) {
+                message = message + " function_output_buffer_size=" + benchmarkConfig.outputBufferSize;
+            }
+        }
         // Append path to the function as payload in ''.
         message = message + " '" + benchmarkConfig.code + "'";
         if (!config.isDebugMode()) {

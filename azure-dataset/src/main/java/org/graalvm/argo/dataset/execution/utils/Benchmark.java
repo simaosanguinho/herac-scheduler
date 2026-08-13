@@ -13,6 +13,10 @@ public class Benchmark {
     public int duration;
     public String hydraSandbox;
     public String svmId;
+    public Long heapSize;
+    public Long inputBufferSize;
+    public Long scratchSize;
+    public Long outputBufferSize;
 
     @Override
     public String toString() {
@@ -26,6 +30,10 @@ public class Benchmark {
                 ", duration=" + duration +
                 ", hydraSandbox='" + hydraSandbox + '\'' +
                 ", svmId='" + svmId + '\'' +
+                ", heapSize=" + heapSize +
+                ", inputBufferSize=" + inputBufferSize +
+                ", scratchSize=" + scratchSize +
+                ", outputBufferSize=" + outputBufferSize +
                 '}';
     }
 }
