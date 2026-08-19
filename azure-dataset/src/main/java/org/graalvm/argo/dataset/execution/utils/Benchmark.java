@@ -15,8 +15,8 @@ public class Benchmark {
     public String svmId;
     public Long heapSize;
     public Long inputBufferSize;
-    public Long scratchSize;
     public Long outputBufferSize;
+    public Long scratchSize;
 
     @Override
     public String toString() {
@@ -32,8 +32,8 @@ public class Benchmark {
                 ", svmId='" + svmId + '\'' +
                 ", heapSize=" + heapSize +
                 ", inputBufferSize=" + inputBufferSize +
-                ", scratchSize=" + scratchSize +
                 ", outputBufferSize=" + outputBufferSize +
+                ", scratchSize=" + scratchSize +
                 '}';
     }
 }

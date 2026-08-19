@@ -133,6 +133,18 @@ public class InvocationTraceExecutor {
                 " function_language=" + functionLanguage + " function_entry_point=" + benchmarkConfig.entryPoint +
                 " function_memory=" + benchmarkConfig.memory + " function_runtime=" + config.functionRuntime.toString() +
                 " function_isolation=" + config.functionIsolation + " invocation_collocation=" + config.invocationCollocation;
+        if (benchmarkConfig.heapSize != null) {
+            message = message + " function_heap_size=" + benchmarkConfig.heapSize;
+        }
+        if (benchmarkConfig.inputBufferSize != null) {
+            message = message + " function_input_buffer_size=" + benchmarkConfig.inputBufferSize;
+        }
+        if (benchmarkConfig.outputBufferSize != null) {
+            message = message + " function_output_buffer_size=" + benchmarkConfig.outputBufferSize;
+        }
+        if (benchmarkConfig.scratchSize != null) {
+            message = message + " function_scratch_size=" + benchmarkConfig.scratchSize;
+        }
         if (benchmarkConfig.hydraSandbox != null) {
             message = message + " hydra_sandbox=" + benchmarkConfig.hydraSandbox;
             // For Python/JS functions that need sandbox snapshotting.

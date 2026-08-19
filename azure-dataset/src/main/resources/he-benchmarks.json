@@ -4,9 +4,13 @@
     "benchmarkName" : "jvhw",
     "code" : "http://172.18.0.1:8000/apps/hello_world_guest.aot",
     "entryPoint" : "run",
-    "payload" : "{}",
+    "payload" : "{\"name\":\"simao\"}",
     "memory"  : 256,
-    "duration" : 5
+    "duration" : 5,
+    "heapSize" : 1048576,
+    "inputBufferSize" : 211840,
+    "outputBufferSize" : 8192,
+    "scratchSize" : 2097152
   },
   "jvfh" : {
     "language" : "java",
@@ -16,19 +20,23 @@
     "payload" : "{\"url\":\"http://172.18.0.1:8000/snap.png\"}",
     "memory"  : 256,
     "duration" : 8,
-    "heapSize" : 1179648,
-    "inputBufferSize" : 527264,
-    "scratchSize" : 0,
-    "outputBufferSize" : 0
+    "heapSize" : 1048576,
+    "inputBufferSize" : 211840,
+    "outputBufferSize" : 8192,
+    "scratchSize" : 2097152
   },
   "jvcl" : {
     "language" : "java",
     "benchmarkName" : "jvcl",
     "code" : "http://172.18.0.1:8000/apps/classify_guest.aot",
     "entryPoint" : "run",
-    "payload" : "{\"model_url\":\"http://172.18.0.1:8000/resnet50.onnx\",\"labels_url\":\"http://172.18.0.1:8000/resnet_labels.txt\",\"image_url\":\"http://172.18.0.1:8000/eagle.jpg\"}",
+    "payload" : "{\"model_url\":\"http://172.18.0.1:8000/resnet50.onnx\",\"labels_url\":\"http://172.18.0.1:8000/imagenet_comp_graph_label_strings.txt\",\"image_url\":\"http://172.18.0.1:8000/eagle.jpg\"}",
     "memory"  : 2048,
-    "duration" : 4430
+    "duration" : 4430,
+    "heapSize" : 133910528,
+    "inputBufferSize" : 47651776,
+    "outputBufferSize" : 8192,
+    "scratchSize" : 569200640
   },
   "jvhr" : {
     "language" : "java",
@@ -38,10 +46,10 @@
     "payload" : "{\"url\":\"http://172.18.0.1:8000/snap.png\"}",
     "memory"  : 256,
     "duration" : 7,
-    "heapSize" : 1179648,
-    "inputBufferSize" : 527264,
-    "scratchSize" : 0,
-    "outputBufferSize" : 0
+    "heapSize" : 1048576,
+    "inputBufferSize" : 211840,
+    "outputBufferSize" : 8192,
+    "scratchSize" : 2097152
   },
   "jvvp" : {
     "language" : "java",
@@ -50,7 +58,11 @@
     "entryPoint" : "run",
     "payload" : "{\"video\":\"http://172.18.0.1:8000/video.mp4\",\"ffmpeg\":\"http://172.18.0.1:8000/ffmpeg\"}",
     "memory"  : 2048,
-    "duration" : 25175
+    "duration" : 25175,
+    "heapSize" : 536870912,
+    "inputBufferSize" : 64732184,
+    "outputBufferSize" : 1572864,
+    "scratchSize" : 1073741824
   },
 
   "pyhw" : {
@@ -58,9 +70,13 @@
     "benchmarkName" : "pyhw",
     "code" : "http://172.18.0.1:8000/apps/hello_world_guest.aot",
     "entryPoint" : "run",
-    "payload" : "{}",
+    "payload" : "{\"name\":\"simao\"}",
     "memory"  : 256,
-    "duration" : 5
+    "duration" : 5,
+    "heapSize" : 1048576,
+    "inputBufferSize" : 211840,
+    "outputBufferSize" : 8192,
+    "scratchSize" : 2097152
   },
   "pyms" : {
     "language" : "python",
@@ -69,7 +85,11 @@
     "entryPoint" : "run",
     "payload" : "{\"size\":\"100\"}",
     "memory"  : 256,
-    "duration" : 12
+    "duration" : 12,
+    "heapSize" : 1048576,
+    "inputBufferSize" : 325632,
+    "outputBufferSize" : 8192,
+    "scratchSize" : 45449216
   },
   "pybf" : {
     "language" : "python",
@@ -78,7 +98,11 @@
     "entryPoint" : "run",
     "payload" : "{\"size\":\"100\"}",
     "memory"  : 256,
-    "duration" : 10
+    "duration" : 10,
+    "heapSize" : 1048576,
+    "inputBufferSize" : 260608,
+    "outputBufferSize" : 8192,
+    "scratchSize" : 18153472
   },
   "pypr" : {
     "language" : "python",
@@ -87,7 +111,11 @@
     "entryPoint" : "run",
     "payload" : "{\"size\":\"10\"}",
     "memory"  : 256,
-    "duration" : 12
+    "duration" : 12,
+    "heapSize" : 1048576,
+    "inputBufferSize" : 260608,
+    "outputBufferSize" : 8192,
+    "scratchSize" : 23773184
   },
   "pydn" : {
     "language" : "python",
@@ -96,7 +124,11 @@
     "entryPoint" : "run",
     "payload" : "{\"fasta_url\":\"http://172.18.0.1:8000/bacillus_subtilis.fasta\"}",
     "memory"  : 256,
-    "duration" : 27
+    "duration" : 27,
+    "heapSize" : 3401728,
+    "inputBufferSize" : 2146304,
+    "outputBufferSize" : 8192,
+    "scratchSize" : 318357504
   },
   "pydh" : {
     "language" : "python",
@@ -105,7 +137,11 @@
     "entryPoint" : "run",
     "payload" : "{\"url\":\"http://172.18.0.1:8000/template.html\",\"username\":\"rbruno\",\"nsize\":\"10\"}",
     "memory"  : 256,
-    "duration" : 14
+    "duration" : 14,
+    "heapSize" : 16746496,
+    "inputBufferSize" : 5182366,
+    "outputBufferSize" : 8192,
+    "scratchSize" : 174993408
   },
   "pyco" : {
     "language" : "python",
@@ -114,7 +150,11 @@
     "entryPoint" : "run",
     "payload" : "{\"url\":\"http://172.18.0.1:8000/video.mp4\"}",
     "memory"  : 256,
-    "duration" : 61
+    "duration" : 61,
+    "heapSize" : 8273920,
+    "inputBufferSize" : 2189140,
+    "outputBufferSize" : 8192,
+    "scratchSize" : 24117248
   },
   "pyth" : {
     "language" : "python",
@@ -123,7 +163,11 @@
     "entryPoint" : "run",
     "payload" : "{\"url\":\"http://172.18.0.1:8000/snap.png\"}",
     "memory"  : 1024,
-    "duration" : 21
+    "duration" : 21,
+    "heapSize" : 3481600,
+    "inputBufferSize" : 1906432,
+    "outputBufferSize" : 8192,
+    "scratchSize" : 8585216
   },
   "pyvp" : {
     "language" : "python",
@@ -132,7 +176,11 @@
     "entryPoint" : "run",
     "payload" : "{\"video\":\"http://172.18.0.1:8000/video.mp4\",\"ffmpeg\":\"http://172.18.0.1:8000/ffmpeg\"}",
     "memory"  : 2048,
-    "duration" : 3052
+    "duration" : 3052,
+    "heapSize" : 536870912,
+    "inputBufferSize" : 64732184,
+    "outputBufferSize" : 1572864,
+    "scratchSize" : 1073741824
   },
   "pyup" : {
     "language" : "python",
@@ -141,7 +189,11 @@
     "entryPoint" : "run",
     "payload" : "{\"url\":\"http://172.18.0.1:8000/snap.png\"}",
     "memory"  : 256,
-    "duration" : 15
+    "duration" : 15,
+    "heapSize" : 6291456,
+    "inputBufferSize" : 1638400,
+    "outputBufferSize" : 1572864,
+    "scratchSize" : 11534336
   },
 
   "jshw" : {
@@ -149,9 +201,13 @@
     "benchmarkName" : "jshw",
     "code" : "http://172.18.0.1:8000/apps/hello_world_guest.aot",
     "entryPoint" : "run",
-    "payload" : "{}",
+    "payload" : "{\"name\":\"simao\"}",
     "memory"  : 256,
-    "duration" : 5
+    "duration" : 5,
+    "heapSize" : 1048576,
+    "inputBufferSize" : 211840,
+    "outputBufferSize" : 8192,
+    "scratchSize" : 2097152
   },
   "jsdh" : {
     "language" : "javascript",
@@ -160,7 +216,11 @@
     "entryPoint" : "run",
     "payload" : "{\"url\":\"http://172.18.0.1:8000/template.html\",\"username\":\"rbruno\",\"nsize\":\"10\"}",
     "memory"  : 256,
-    "duration" : 6
+    "duration" : 6,
+    "heapSize" : 16746496,
+    "inputBufferSize" : 5182366,
+    "outputBufferSize" : 8192,
+    "scratchSize" : 174993408
   },
   "jsth" : {
     "language" : "javascript",
@@ -169,7 +229,11 @@
     "entryPoint" : "run",
     "payload" : "{\"url\":\"http://172.18.0.1:8000/snap.png\"}",
     "memory"  : 512,
-    "duration" : 25
+    "duration" : 25,
+    "heapSize" : 3481600,
+    "inputBufferSize" : 1906432,
+    "outputBufferSize" : 8192,
+    "scratchSize" : 8585216
   },
   "jsup" : {
     "language" : "javascript",
@@ -178,6 +242,10 @@
     "entryPoint" : "run",
     "payload" : "{\"url\":\"http://172.18.0.1:8000/snap.png\"}",
     "memory"  : 256,
-    "duration" : 9
+    "duration" : 9,
+    "heapSize" : 6291456,
+    "inputBufferSize" : 1638400,
+    "outputBufferSize" : 1572864,
+    "scratchSize" : 11534336
   }
 }
