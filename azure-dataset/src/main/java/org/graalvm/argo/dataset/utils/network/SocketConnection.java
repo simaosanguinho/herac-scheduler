@@ -36,7 +36,7 @@ public class SocketConnection implements Closeable {
     private final Set<Integer> returnedIds;
 
     public SocketConnection(String host, int port) {
-        buffer = ByteBuffer.allocate(512);
+        buffer = ByteBuffer.allocate(8192);
         requestId = new AtomicInteger(0);
         callbackBacklog = new HashMap<>();
         returnedIds = new HashSet<>();
