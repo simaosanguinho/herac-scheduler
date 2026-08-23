@@ -34,6 +34,91 @@ WORKER_COUNT=100
 FIRST_PORT=50010
 
 
+function append_prereq_issue {
+    local message="$1"
+    if [[ -z "${PREREQ_ISSUES:-}" ]]; then
+        PREREQ_ISSUES="$message"
+    else
+        PREREQ_ISSUES="$PREREQ_ISSUES
+$message"
+    fi
+}
+
+
+function check_sysctl_min {
+    local name="$1"
+    local expected="$2"
+    local current
+    current="$(sysctl -n "$name" 2>/dev/null || true)"
+    if [[ -z "$current" ]]; then
+        append_prereq_issue "- Missing sysctl '$name'."
+        return
+    fi
+    if (( current < expected )); then
+        append_prereq_issue "- sysctl $name=$current, recommended >= $expected for this large-scale replay."
+    fi
+}
+
+
+function check_tmpfs_mount {
+    local path="$1"
+    local fs_type
+    fs_type="$(stat -f -c %T "$path" 2>/dev/null || true)"
+    if [[ -z "$fs_type" ]]; then
+        append_prereq_issue "- Path '$path' is missing."
+        return
+    fi
+    if [[ "$fs_type" != "tmpfs" ]]; then
+        append_prereq_issue "- Path '$path' is on '$fs_type', recommended 'tmpfs' for this large-scale replay."
+    fi
+}
+
+
+function check_pids_limit {
+    local pids_path="/sys/fs/cgroup/user.slice/user-$(id -u).slice/pids.max"
+    local expected="$1"
+    local current
+    current="$(cat "$pids_path" 2>/dev/null || true)"
+    if [[ -z "$current" ]]; then
+        append_prereq_issue "- cgroup pids.max is unavailable at '$pids_path'."
+        return
+    fi
+    if [[ "$current" != "max" ]] && (( current < expected )); then
+        append_prereq_issue "- cgroup pids.max=$current, recommended >= $expected for this large-scale replay."
+    fi
+}
+
+
+function ensure_large_scale_prereqs {
+    local recommended_limit="${LSE_RECOMMENDED_LIMIT:-4194304}"
+    local allow_untuned="${ALLOW_UNTUNED_HOST:-0}"
+
+    PREREQ_ISSUES=""
+    check_sysctl_min kernel.threads-max "$recommended_limit"
+    check_sysctl_min kernel.pid_max "$recommended_limit"
+    check_sysctl_min vm.max_map_count "$recommended_limit"
+    check_pids_limit "$recommended_limit"
+    check_tmpfs_mount "$ARGO_HOME/lambda-manager/lambda_logs"
+    check_tmpfs_mount "$ARGO_HOME/lambda-manager/codebase"
+
+    if [[ -n "$PREREQ_ISSUES" ]]; then
+        cat >&2 <<EOF
+Large-scale replay prerequisites are not satisfied:
+$PREREQ_ISSUES
+
+These recommendations come from scheduler/azure-dataset/benchmark-results/README.md
+and benchmarks/demos/*/update-limits.sh. They matter for the real-runtime replay path
+used by benchmark-lse.sh, especially with Hydra process/snapshot-process workloads.
+
+Set ALLOW_UNTUNED_HOST=1 to bypass this check if you want to continue anyway.
+EOF
+        if [[ "$allow_untuned" != "1" ]]; then
+            exit 1
+        fi
+    fi
+}
+
+
 function process_dataset {
     csv_file=$1
     execution_mode=$2
@@ -51,6 +136,10 @@ function process_dataset {
         --lambdaManagerAddress $LAMBDA_MANAGER_ADDRESS \
         --executionMode $execution_mode $multi_worker_option &> $EXECUTOR_LOG_FILE
 
+    if [[ -n "$RESULTS_DIR" ]]; then
+        cp "$EXECUTOR_LOG_FILE" "$RESULTS_DIR/executor.log"
+    fi
+
     sleep 10
     echo "Finished benchmark execution. Stopping the lambda manager..."
     stop_lambda_manager
@@ -61,6 +150,8 @@ MODE=$1
 DATASET_FILE=$2
 EXECUTOR_TYPE=$3
 RESULTS_DIR=$4
+
+#ensure_large_scale_prereqs
 
 # Default paths
 LAMBDA_MANAGER_CONFIGURATION="$ARGO_HOME/run/configs/manager/default-lambda-manager.json"

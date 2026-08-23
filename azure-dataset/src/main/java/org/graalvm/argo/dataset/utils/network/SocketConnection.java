@@ -74,8 +74,10 @@ public class SocketConnection implements Closeable {
         buffer.putInt(msgBytes.length);
         buffer.put(msgBytes);
         buffer.flip();
-        // Write buffer contents to client.
-        channel.write(buffer);
+        // Non-blocking sockets are allowed to perform partial writes.
+        while (buffer.hasRemaining()) {
+            channel.write(buffer);
+        }
         buffer.clear();
         return currentRequestId;
     }

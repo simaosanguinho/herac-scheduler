@@ -7,7 +7,7 @@
     "payload" : "{\"name\":\"rbruno\"}",
     "memory"  : 256,
     "duration" : 5,
-    "hydraSandbox" : "isolate"
+    "hydraSandbox" : "process"
   },
   "jvfh" : {
     "language" : "java",
@@ -17,12 +17,12 @@
     "payload" : "{\"url\":\"http://172.18.0.1:8000/snap.png\"}",
     "memory"  : 256,
     "duration" : 8,
-    "hydraSandbox" : "isolate"
+    "hydraSandbox" : "process"
   },
   "jvcl" : {
     "language" : "java",
     "benchmarkName" : "jvcl",
-    "code" : "http://172.18.0.1:8000/apps/hy-jv-classify.so",
+    "code" : "http://172.18.0.1:8000/apps/hy-jv-classify.zip",
     "entryPoint" : "com.classify.Classify",
     "payload" : "{\"model_url\":\"http://172.18.0.1:8000/tensorflow_inception_graph.pb\",\"labels_url\":\"http://172.18.0.1:8000/imagenet_comp_graph_label_strings.txt\",\"image_url\":\"http://172.18.0.1:8000/eagle.jpg\"}",
     "memory"  : 2048,
@@ -37,7 +37,7 @@
     "payload" : "{\"url\":\"http://172.18.0.1:8000/snap.png\"}",
     "memory"  : 256,
     "duration" : 7,
-    "hydraSandbox" : "isolate"
+    "hydraSandbox" : "process"
   },
   "jvvp" : {
     "language" : "java",
@@ -60,7 +60,7 @@
     "payload" : "{\"name\":\"rbruno\"}",
     "memory"  : 256,
     "duration" : 5,
-    "hydraSandbox" : "snapshot-process",
+    "hydraSandbox" : "process",
     "svmId" : "5"
   },
   "pyms" : {
@@ -71,7 +71,7 @@
     "payload" : "{\"size\":\"100\"}",
     "memory"  : 256,
     "duration" : 12,
-    "hydraSandbox" : "snapshot-process",
+    "hydraSandbox" : "process",
     "svmId" : "6"
   },
   "pybf" : {
@@ -82,7 +82,7 @@
     "payload" : "{\"size\":\"100\"}",
     "memory"  : 256,
     "duration" : 10,
-    "hydraSandbox" : "snapshot-process",
+    "hydraSandbox" : "process",
     "svmId" : "7"
   },
   "pypr" : {
@@ -93,7 +93,7 @@
     "payload" : "{\"size\":\"10\"}",
     "memory"  : 256,
     "duration" : 12,
-    "hydraSandbox" : "snapshot-process",
+    "hydraSandbox" : "process",
     "svmId" : "8"
   },
   "pydn" : {
@@ -104,7 +104,7 @@
     "payload" : "{\"fasta_url\":\"http://172.18.0.1:8000/bacillus_subtilis.fasta\"}",
     "memory"  : 256,
     "duration" : 27,
-    "hydraSandbox" : "snapshot-process",
+    "hydraSandbox" : "process",
     "svmId" : "9"
   },
   "pydh" : {
@@ -115,7 +115,7 @@
     "payload" : "{\"url\":\"http://172.18.0.1:8000/template.html\",\"username\":\"rbruno\",\"nsize\":\"10\"}",
     "memory"  : 256,
     "duration" : 14,
-    "hydraSandbox" : "snapshot-process",
+    "hydraSandbox" : "process",
     "svmId" : "10"
   },
   "pyco" : {
@@ -126,7 +126,7 @@
     "payload" : "{\"url\":\"http://172.18.0.1:8000/video.mp4\"}",
     "memory"  : 256,
     "duration" : 61,
-    "hydraSandbox" : "snapshot-process",
+    "hydraSandbox" : "process",
     "svmId" : "11"
   },
   "pyth" : {
@@ -137,7 +137,7 @@
     "payload" : "{\"url\":\"http://172.18.0.1:8000/snap.png\"}",
     "memory"  : 1024,
     "duration" : 21,
-    "hydraSandbox" : "snapshot-process",
+    "hydraSandbox" : "process",
     "svmId" : "12"
   },
   "pyvp" : {
@@ -159,7 +159,7 @@
     "payload" : "{\"url\":\"http://172.18.0.1:8000/snap.png\"}",
     "memory"  : 256,
     "duration" : 15,
-    "hydraSandbox" : "snapshot-process",
+    "hydraSandbox" : "process",
     "svmId" : "14"
   },
 
@@ -173,7 +173,7 @@
     "payload" : "{\"name\":\"rbruno\"}",
     "memory"  : 256,
     "duration" : 5,
-    "hydraSandbox" : "snapshot-process",
+    "hydraSandbox" : "process",
     "svmId" : "1"
   },
   "jsdh" : {
@@ -184,7 +184,7 @@
     "payload" : "{\"url\":\"http://172.18.0.1:8000/template.html\",\"username\":\"rbruno\",\"nsize\":\"10\"}",
     "memory"  : 256,
     "duration" : 6,
-    "hydraSandbox" : "snapshot-process",
+    "hydraSandbox" : "process",
     "svmId" : "2"
   },
   "jsth" : {
