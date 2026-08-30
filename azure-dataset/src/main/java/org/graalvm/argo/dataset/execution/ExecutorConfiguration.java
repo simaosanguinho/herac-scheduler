@@ -68,7 +68,7 @@ public class ExecutorConfiguration {
     }
 
     private String getFunctionIsolation(String executionMode) {
-        if ("hy".equals(executionMode) || "hy-fc".equals(executionMode)) {
+        if ("hy".equals(executionMode) || "hy-fc".equals(executionMode) || "he".equals(executionMode) || "ow".equals(executionMode) || "kn".equals(executionMode)) {
             return "false";
         }
         return "true";

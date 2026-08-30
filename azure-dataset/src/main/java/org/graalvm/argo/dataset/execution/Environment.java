@@ -6,7 +6,7 @@ public class Environment {
     public final static int WORKER_COUNT = 100;
     public final static int MAX_MEMORY_PER_WORKER_MB = 106496;
     // Negate if you don't want to insert real worker.
-    public final static int REAL_WORKER_INDEX = 9;
+    public final static int REAL_WORKER_INDEX = 0;
     public final static String REAL_WORKER_TRACE_OUTPUT = "/tmp/lse_trace.csv";
     // Statistics about used memory and #VMs in each worker (theoretic, calculated by memory managers).
     public final static boolean COLLECT_STATISTICS = false;
