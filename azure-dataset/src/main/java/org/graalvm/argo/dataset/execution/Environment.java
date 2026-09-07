@@ -17,7 +17,7 @@ public class Environment {
 
     // Fake worker configuration.
     public static final String FAKE_WORKER_HOST = "localhost";
-    public final static int FAKE_WORKER_FIRST_PORT = 50010;
+    public final static int FAKE_WORKER_FIRST_PORT = 60010;
 
     public static final int VM_MEMORY = 1024;
 }

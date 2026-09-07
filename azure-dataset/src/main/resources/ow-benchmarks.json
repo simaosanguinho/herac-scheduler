@@ -89,7 +89,7 @@
     "code" : "{{ARGO_HOME}}/benchmarks/src/python/cr-dna/init.json",
     "entryPoint" : "main",
     "payload" : "{\"fasta_url\":\"http://172.18.0.1:8000/bacillus_subtilis.fasta\"}",
-    "memory"  : 256,
+    "memory"  : 512,
     "duration" : 27
   },
   "pydh" : {

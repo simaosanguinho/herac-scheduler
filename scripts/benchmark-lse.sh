@@ -31,7 +31,7 @@ echo "Running the large scale experiment locally."
 LAMBDA_MANAGER_ADDRESS="$LOCAL_LAMBDA_MANAGER_HOST:$LAMBDA_MANAGER_PORT"
 
 WORKER_COUNT=100
-FIRST_PORT=50010
+FIRST_PORT=60010
 
 
 function append_prereq_issue {

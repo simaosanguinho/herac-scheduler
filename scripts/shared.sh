@@ -37,10 +37,23 @@ function terminate_local_pid {
 
 function terminate_local_listener {
     port=$1
-    pid="$(lsof -t -i :"$port" 2>/dev/null || true)"
-    if [[ -n "$pid" ]]; then
-        terminate_local_pid "$pid"
-    fi
+    lsof -t -i :"$port" 2>/dev/null | xargs -r kill 2>/dev/null || true
+    sleep 1
+    lsof -t -i :"$port" 2>/dev/null | xargs -r kill -9 2>/dev/null || true
+}
+
+function wait_port_free {
+    local port=$1
+    local timeout="${2:-10}"
+    local elapsed=0
+    while lsof -i :"$port" >/dev/null 2>&1; do
+        if (( elapsed >= timeout )); then
+            echo "Warning: port $port still in use after ${timeout}s" >&2
+            return 1
+        fi
+        sleep 0.5
+        elapsed=$((elapsed + 1))
+    done
 }
 
 function cleanup_local_lambda_containers {
@@ -60,6 +73,10 @@ function start_lambda_manager {
     if [[ -n "${LOCAL_EXECUTION}" ]]; then
         terminate_local_listener 30008
         terminate_local_listener 30009
+        if ! wait_port_free 30008 || ! wait_port_free 30009; then
+            echo "ERROR: Ports still in use, cannot start lambda manager" >&2
+            return 1
+        fi
         cleanup_local_lambda_containers
         bash $LAMBDA_MANAGER_HOME/deploy.sh --config $config_path --variables $variables_path --socket &
         LOCAL_LAMBDA_MANAGER_PID=$!
@@ -76,6 +93,8 @@ function stop_lambda_manager {
         terminate_local_pid "$LOCAL_LAMBDA_MANAGER_PID"
         terminate_local_listener 30008
         terminate_local_listener 30009
+        wait_port_free 30008
+        wait_port_free 30009
         cleanup_local_lambda_containers
         LOCAL_LAMBDA_MANAGER_PID=
     else

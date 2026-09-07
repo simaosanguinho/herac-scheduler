@@ -79,7 +79,7 @@
       "benchmarkName" : "pypr",
       "code" : "knative-py/kn-pagerank",
       "entryPoint" : "main",
-      "payload" : "{\"size\":\"100\"}",
+      "payload" : "{\"size\":\"10\"}",
       "memory"  : 2048,
       "duration" : 12
     },

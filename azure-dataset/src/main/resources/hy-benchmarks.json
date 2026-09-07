@@ -7,7 +7,7 @@
     "payload" : "{\"name\":\"rbruno\"}",
     "memory"  : 256,
     "duration" : 5,
-    "hydraSandbox" : "process"
+    "hydraSandbox" : "isolate"
   },
   "jvfh" : {
     "language" : "java",
@@ -17,17 +17,17 @@
     "payload" : "{\"url\":\"http://172.18.0.1:8000/snap.png\"}",
     "memory"  : 256,
     "duration" : 8,
-    "hydraSandbox" : "process"
+    "hydraSandbox" : "isolate"
   },
   "jvcl" : {
     "language" : "java",
     "benchmarkName" : "jvcl",
-    "code" : "http://172.18.0.1:8000/apps/hy-jv-classify.zip",
+    "code" : "http://172.18.0.1:8000/apps/hy-jv-classify.so",
     "entryPoint" : "com.classify.Classify",
     "payload" : "{\"model_url\":\"http://172.18.0.1:8000/tensorflow_inception_graph.pb\",\"labels_url\":\"http://172.18.0.1:8000/imagenet_comp_graph_label_strings.txt\",\"image_url\":\"http://172.18.0.1:8000/eagle.jpg\"}",
     "memory"  : 2048,
     "duration" : 4430,
-    "hydraSandbox" : "process"
+    "hydraSandbox" : "isolate"
   },
   "jvhr" : {
     "language" : "java",
@@ -37,7 +37,7 @@
     "payload" : "{\"url\":\"http://172.18.0.1:8000/snap.png\"}",
     "memory"  : 256,
     "duration" : 7,
-    "hydraSandbox" : "process"
+    "hydraSandbox" : "isolate"
   },
   "jvvp" : {
     "language" : "java",
@@ -47,7 +47,7 @@
     "payload" : "{\"video\":\"http://172.18.0.1:8000/video.mp4\",\"ffmpeg\":\"http://172.18.0.1:8000/ffmpeg\"}",
     "memory"  : 2048,
     "duration" : 25175,
-    "hydraSandbox" : "process"
+    "hydraSandbox" : "isolate"
   },
 
 
@@ -60,7 +60,7 @@
     "payload" : "{\"name\":\"rbruno\"}",
     "memory"  : 256,
     "duration" : 5,
-    "hydraSandbox" : "process",
+    "hydraSandbox" : "isolate",
     "svmId" : "5"
   },
   "pyms" : {
@@ -71,7 +71,7 @@
     "payload" : "{\"size\":\"100\"}",
     "memory"  : 256,
     "duration" : 12,
-    "hydraSandbox" : "process",
+    "hydraSandbox" : "isolate",
     "svmId" : "6"
   },
   "pybf" : {
@@ -82,7 +82,7 @@
     "payload" : "{\"size\":\"100\"}",
     "memory"  : 256,
     "duration" : 10,
-    "hydraSandbox" : "process",
+    "hydraSandbox" : "isolate",
     "svmId" : "7"
   },
   "pypr" : {
@@ -93,7 +93,7 @@
     "payload" : "{\"size\":\"10\"}",
     "memory"  : 256,
     "duration" : 12,
-    "hydraSandbox" : "process",
+    "hydraSandbox" : "isolate",
     "svmId" : "8"
   },
   "pydn" : {
@@ -104,7 +104,7 @@
     "payload" : "{\"fasta_url\":\"http://172.18.0.1:8000/bacillus_subtilis.fasta\"}",
     "memory"  : 256,
     "duration" : 27,
-    "hydraSandbox" : "process",
+    "hydraSandbox" : "isolate",
     "svmId" : "9"
   },
   "pydh" : {
@@ -115,7 +115,7 @@
     "payload" : "{\"url\":\"http://172.18.0.1:8000/template.html\",\"username\":\"rbruno\",\"nsize\":\"10\"}",
     "memory"  : 256,
     "duration" : 14,
-    "hydraSandbox" : "process",
+    "hydraSandbox" : "isolate",
     "svmId" : "10"
   },
   "pyco" : {
@@ -126,7 +126,7 @@
     "payload" : "{\"url\":\"http://172.18.0.1:8000/video.mp4\"}",
     "memory"  : 256,
     "duration" : 61,
-    "hydraSandbox" : "process",
+    "hydraSandbox" : "isolate",
     "svmId" : "11"
   },
   "pyth" : {
@@ -137,7 +137,7 @@
     "payload" : "{\"url\":\"http://172.18.0.1:8000/snap.png\"}",
     "memory"  : 1024,
     "duration" : 21,
-    "hydraSandbox" : "process",
+    "hydraSandbox" : "isolate",
     "svmId" : "12"
   },
   "pyvp" : {
@@ -148,7 +148,7 @@
     "payload" : "{\"video\":\"http://172.18.0.1:8000/video.mp4\",\"ffmpeg\":\"http://172.18.0.1:8000/ffmpeg\"}",
     "memory"  : 2048,
     "duration" : 3052,
-    "hydraSandbox" : "process",
+    "hydraSandbox" : "isolate",
     "svmId" : "13"
   },
   "pyup" : {
@@ -156,10 +156,10 @@
     "benchmarkName" : "pyup",
     "code" : "http://172.18.0.1:8000/apps/hy-py-uploader.so",
     "entryPoint" : "com.uploader.Uploader",
-    "payload" : "{\"url\":\"http://172.18.0.1:8000/snap.png\"}",
+    "payload" : "{\"download_url\":\"http://172.18.0.1:8000/new.mp4\",\"upload_url\":\"http://172.18.0.1:9696/upload\"}",
     "memory"  : 256,
     "duration" : 15,
-    "hydraSandbox" : "process",
+    "hydraSandbox" : "isolate",
     "svmId" : "14"
   },
 
@@ -173,7 +173,7 @@
     "payload" : "{\"name\":\"rbruno\"}",
     "memory"  : 256,
     "duration" : 5,
-    "hydraSandbox" : "process",
+    "hydraSandbox" : "isolate",
     "svmId" : "1"
   },
   "jsdh" : {
@@ -184,7 +184,7 @@
     "payload" : "{\"url\":\"http://172.18.0.1:8000/template.html\",\"username\":\"rbruno\",\"nsize\":\"10\"}",
     "memory"  : 256,
     "duration" : 6,
-    "hydraSandbox" : "process",
+    "hydraSandbox" : "isolate",
     "svmId" : "2"
   },
   "jsth" : {
@@ -195,7 +195,7 @@
     "payload" : "{\"url\":\"http://172.18.0.1:8000/snap.png\"}",
     "memory"  : 512,
     "duration" : 25,
-    "hydraSandbox" : "process",
+    "hydraSandbox" : "isolate",
     "svmId" : "3"
   },
   "jsup" : {
@@ -203,10 +203,10 @@
     "benchmarkName" : "jsup",
     "code" : "http://172.18.0.1:8000/apps/hy-js-uploader.so",
     "entryPoint" : "com.uploader.Uploader",
-    "payload" : "{\"url\":\"http://172.18.0.1:8000/snap.png\"}",
+    "payload" : "{\"download_url\":\"http://172.18.0.1:8000/new.mp4\",\"upload_url\":\"http://172.18.0.1:9696/upload\"}",
     "memory"  : 256,
     "duration" : 9,
-    "hydraSandbox" : "process",
+    "hydraSandbox" : "isolate",
     "svmId" : "4"
   }
 }
