@@ -69,6 +69,7 @@ public class RealWorker extends AbstractWorker {
 
         @Override
         public void accept(String s) {
+            //System.out.println("Invocation completed: " + s);
             --((RealWorker)worker).conc;
             worker.memoryManager.finishRequest(owner, function);
         }

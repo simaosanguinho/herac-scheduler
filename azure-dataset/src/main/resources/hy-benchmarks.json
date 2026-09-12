@@ -4,7 +4,7 @@
     "benchmarkName" : "jvhw",
     "code" : "http://172.18.0.1:8000/apps/hy-jv-hello-world.so",
     "entryPoint" : "com.hello_world.HelloWorld",
-    "payload" : "{\"name\":\"rbruno\"}",
+    "payload" : "{\"name\":\"simao\"}",
     "memory"  : 256,
     "duration" : 5,
     "hydraSandbox" : "isolate"
@@ -27,7 +27,7 @@
     "payload" : "{\"model_url\":\"http://172.18.0.1:8000/tensorflow_inception_graph.pb\",\"labels_url\":\"http://172.18.0.1:8000/imagenet_comp_graph_label_strings.txt\",\"image_url\":\"http://172.18.0.1:8000/eagle.jpg\"}",
     "memory"  : 2048,
     "duration" : 4430,
-    "hydraSandbox" : "isolate"
+    "hydraSandbox" : "process"
   },
   "jvhr" : {
     "language" : "java",
@@ -57,7 +57,7 @@
     "benchmarkName" : "pyhw",
     "code" : "http://172.18.0.1:8000/apps/hy-py-hello-world.so",
     "entryPoint" : "com.helloworld.HelloWorld",
-    "payload" : "{\"name\":\"rbruno\"}",
+    "payload" : "{\"name\":\"simao\"}",
     "memory"  : 256,
     "duration" : 5,
     "hydraSandbox" : "isolate",
@@ -170,7 +170,7 @@
     "benchmarkName" : "jshw",
     "code" : "http://172.18.0.1:8000/apps/hy-js-hello-world.so",
     "entryPoint" : "com.helloworld.HelloWorld",
-    "payload" : "{\"name\":\"rbruno\"}",
+    "payload" : "{\"name\":\"simao\"}",
     "memory"  : 256,
     "duration" : 5,
     "hydraSandbox" : "isolate",

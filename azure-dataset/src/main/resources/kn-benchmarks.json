@@ -4,7 +4,7 @@
       "benchmarkName" : "jvhw",
       "code" : "knative-jv/kn-hello-world",
       "entryPoint" : "Hello",
-      "payload" : "{\"name\":\"rbruno\"}",
+      "payload" : "{\"name\":\"simao\"}",
       "memory"  : 512,
       "duration" : 5
     },
@@ -145,7 +145,7 @@
       "benchmarkName" : "jshw",
       "code" : "knative-js/kn-hello-world",
       "entryPoint" : "main",
-      "payload" : "{\"name\":\"rbruno\"}",
+      "payload" : "{\"name\":\"simao\"}",
       "memory"  : 256,
       "duration" : 5
     },
